@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Kinetic Clock — a direction-encoded generative timepiece." />
+    <title>Kinetic Clock</title>
+    <link id="favicon" rel="icon" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-mode="ambient" data-palette="graphite" data-studio="closed" data-hour-format="12" data-hints="off">
+    <h1 class="sr-only">Kinetic Clock</h1>
+    <div class="viewport">
+      <div class="hint-control hud hud--hints" aria-label="Display options">
+        <button
+          type="button"
+          id="hint-control"
+          class="hint-chip__frame"
+          aria-pressed="false"
+          aria-label="Color direction hints off"
+          title="Direction hints (H)"
+        >
+          <span class="hint-chip__box" aria-hidden="true">
+            <span class="hint-chip__dash hint-chip__dash--cw"></span>
+            <span class="hint-chip__dash hint-chip__dash--ccw"></span>
+          </span>
+        </button>
+        <time id="time-readout" class="time-readout" datetime=""></time>
+      </div>
+
+      <div class="hour-control hud hud--hour">
+        <button
+          type="button"
+          id="hour-toggle"
+          class="hour-toggle__frame"
+          aria-pressed="false"
+          aria-label="12 hour format. Click to switch to 24 hour."
+          title="Toggle 12 / 24 hour"
+        >
+          <span class="hour-toggle__thumb" aria-hidden="true"></span>
+          <span class="hour-toggle__digits" aria-hidden="true">
+            <span class="hour-toggle__d hour-toggle__d--1">1</span>
+            <span class="hour-toggle__d hour-toggle__d--2">2</span>
+            <span class="hour-toggle__d hour-toggle__d--4">4</span>
+          </span>
+        </button>
+        <span class="hour-toggle__label">H O U R</span>
+      </div>
+
+      <canvas
+        id="segment-display"
+        class="display"
+        role="img"
+        aria-label="Four-digit display formed by rotating line segments."
+      ></canvas>
+
+      <button
+        type="button"
+        class="studio-trigger"
+        id="studio-trigger"
+        aria-label="Open settings"
+        aria-expanded="false"
+        aria-controls="studio-panel"
+        title="Settings (S)"
+      >
+        <span class="studio-trigger__dot" aria-hidden="true"></span>
+      </button>
+
+      <aside
+        id="studio-panel"
+        class="studio-panel"
+        aria-label="Settings"
+        hidden
+      >
+        <div class="studio-panel__inner">
+          <header class="studio-panel__head">
+            <span class="studio-panel__title">Studio</span>
+            <button
+              type="button"
+              class="studio-panel__close"
+              id="studio-close"
+              aria-label="Close settings"
+            >
+              ×
+            </button>
+          </header>
+
+          <div class="studio-panel__modes" role="group" aria-label="Experience mode">
+            <button type="button" class="mode-btn is-active" data-mode="ambient">Ambient</button>
+            <button type="button" class="mode-btn" data-mode="studio">Studio</button>
+            <button type="button" class="mode-btn" data-mode="installation">Installation</button>
+          </div>
+
+          <label class="field" for="resolution-slider">
+            <span class="field__label">Density</span>
+            <input id="resolution-slider" type="range" min="1" max="4" step="1" value="2" />
+            <output id="resolution-value" class="field__value" for="resolution-slider">2×</output>
+          </label>
+
+          <label class="field" for="speed-slider">
+            <span class="field__label">Motion</span>
+            <input id="speed-slider" type="range" min="0" max="120" step="1" value="42" />
+            <output id="speed-value" class="field__value" for="speed-slider">42</output>
+          </label>
+
+          <label class="field field--select" for="palette-select">
+            <span class="field__label">Tone</span>
+            <select id="palette-select" class="field__select">
+              <option value="graphite">Graphite</option>
+              <option value="amber">Amber</option>
+              <option value="paper">Paper</option>
+              <option value="museum">Museum</option>
+            </select>
+          </label>
+
+          <div class="studio-panel__row">
+            <button type="button" class="text-btn" id="randomize-phases">Scatter phases</button>
+            <button type="button" class="text-btn" id="align-phases">Align phases</button>
+          </div>
+
+          <p class="studio-panel__hint" id="display-stats" aria-live="polite"></p>
+        </div>
+      </aside>
+
+      <footer class="chrome" aria-hidden="true">
+        <kbd class="chrome__key">F</kbd> fullscreen
+        <span class="chrome__sep">·</span>
+        <kbd class="chrome__key">S</kbd> settings
+        <span class="chrome__sep">·</span>
+        <kbd class="chrome__key">Space</kbd> pause
+        <span class="chrome__sep">·</span>
+        <kbd class="chrome__key">H</kbd> hints
+      </footer>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

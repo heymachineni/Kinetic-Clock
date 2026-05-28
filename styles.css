@@ -1,6 +1,7 @@
 :root {
   color-scheme: dark;
   --font: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
 
   --bg: #080808;
   --bg-vignette: radial-gradient(
@@ -112,6 +113,31 @@ body {
   height: 100%;
   min-height: 100dvh;
   padding: clamp(1.5rem, 6vmin, 4rem);
+}
+
+.brand-title {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.15vw, 12px);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: lowercase;
+  text-align: center;
+  color: rgba(245, 243, 240, 0.32);
+  pointer-events: none;
+  user-select: none;
+  transform: translate(-50%, -50%);
+}
+
+[data-palette="paper"] .brand-title {
+  color: rgba(28, 26, 24, 0.28);
 }
 
 /* —— Hint control + time (matches hour-control layout) —— */
@@ -286,7 +312,7 @@ body[data-hour-format="24"] .hour-toggle__thumb {
   width: 100%;
   height: 100%;
   align-items: center;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 400;
   line-height: 1;
@@ -311,7 +337,7 @@ body[data-hour-format="24"] .hour-toggle__d--4 {
 
 .hour-toggle__label {
   width: 3.35rem;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 400;
   letter-spacing: 0.26em;

@@ -105,12 +105,6 @@ const ctx =
   dom.canvas.getContext("2d", { alpha: true, desynchronized: true }) ??
   dom.canvas.getContext("2d");
 
-const faviconCanvas = document.createElement("canvas");
-faviconCanvas.width = 64;
-faviconCanvas.height = 64;
-const faviconCtx = faviconCanvas.getContext("2d");
-let lastFaviconLabel = "";
-
 /* —— Utilities —— */
 
 function readCssVar(name) {
@@ -536,60 +530,6 @@ function drawDisplay() {
   drawSegments(state.cwCells, palette.hintCw, useBlend, true);
 }
 
-function drawFaviconSegment(context, cx, cy, halfLen, degrees, color) {
-  const rad = degreesToRadians(degrees);
-  const dx = halfLen * Math.cos(rad);
-  const dy = halfLen * Math.sin(rad);
-  context.strokeStyle = color;
-  context.beginPath();
-  context.moveTo(cx - dx, cy - dy);
-  context.lineTo(cx + dx, cy + dy);
-  context.stroke();
-}
-
-function getFaviconHandAngles() {
-  const { now } = getLocalTimeParts();
-  const h = now.getHours() % 12;
-  const m = now.getMinutes();
-  return {
-    hour: 90 + (h + m / 60) * 30,
-    minute: 90 + m * 6,
-  };
-}
-
-function updateFavicon(force = false) {
-  const { now } = getLocalTimeParts();
-  const tick = `${now.getHours()}:${now.getMinutes()}`;
-  if (!force && tick === lastFaviconLabel) return;
-  lastFaviconLabel = tick;
-
-  const link = document.getElementById("favicon");
-  if (!link || !faviconCtx) return;
-
-  const size = 64;
-  const pad = 2;
-  const boxSize = size - pad * 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const { hour, minute } = getFaviconHandAngles();
-
-  faviconCtx.clearRect(0, 0, size, size);
-  faviconCtx.fillStyle = "#080808";
-  faviconCtx.fillRect(0, 0, size, size);
-
-  faviconCtx.strokeStyle = "rgba(255, 255, 255, 0.28)";
-  faviconCtx.lineWidth = 1.5;
-  faviconCtx.strokeRect(pad + 0.75, pad + 0.75, boxSize - 1.5, boxSize - 1.5);
-
-  faviconCtx.lineCap = "round";
-  faviconCtx.lineWidth = 2.5;
-  drawFaviconSegment(faviconCtx, cx, cy, 16, hour, "#5bb8ff");
-  drawFaviconSegment(faviconCtx, cx, cy, 26, minute, "#ff6b7d");
-
-  link.type = "image/png";
-  link.href = faviconCanvas.toDataURL("image/png");
-}
-
 function syncClock(forceMask = false) {
   const digits = getTimeDigits();
   updateTimeMask(digits, state.metrics ?? undefined, forceMask);
@@ -600,8 +540,6 @@ function syncClock(forceMask = false) {
     dom.timeReadout.textContent = formatted;
     dom.timeReadout.dateTime = now.toISOString();
   }
-
-  updateFavicon();
 }
 
 function setHourFormat(format) {
@@ -849,7 +787,6 @@ function init() {
   applyModePreset("ambient");
   setStudioOpen(false);
   syncClock(true);
-  updateFavicon(true);
   requestAnimationFrame(animate);
 }
 

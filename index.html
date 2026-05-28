@@ -16,8 +16,8 @@
   </head>
   <body data-mode="ambient" data-palette="graphite" data-studio="closed" data-hour-format="12" data-hints="off">
     <div class="viewport">
-      <h1 class="brand-title">Kinetic clock</h1>
-      <div class="hint-control hud hud--hints" aria-label="Display options">
+      <header class="hud-bar">
+        <div class="hint-control hud--hints" aria-label="Display options">
         <button
           type="button"
           id="hint-control"
@@ -32,9 +32,11 @@
           </span>
         </button>
         <time id="time-readout" class="time-readout" datetime=""></time>
-      </div>
+        </div>
 
-      <div class="hour-control hud hud--hour">
+        <h1 class="brand-title">Kinetic clock</h1>
+
+        <div class="hour-control hud--hour">
         <button
           type="button"
           id="hour-toggle"
@@ -51,7 +53,8 @@
           </span>
         </button>
         <span class="hour-toggle__label">H O U R</span>
-      </div>
+        </div>
+      </header>
 
       <canvas
         id="segment-display"

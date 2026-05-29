@@ -2,7 +2,7 @@
   <rect width="64" height="64" fill="#080808"/>
   <rect x="2" y="2" width="60" height="60" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
   <g transform="translate(32 32)" stroke-linecap="round">
-    <line x1="0" y1="0" x2="0" y2="-16" stroke="#5bb8ff" stroke-width="2.5" transform="rotate(300)"/>
-    <line x1="0" y1="0" x2="0" y2="-26" stroke="#ff6b7d" stroke-width="2.5" transform="rotate(60)"/>
+    <line x1="0" y1="0" x2="0" y2="-16" stroke="#8eb8e8" stroke-width="2.5" transform="rotate(300)"/>
+    <line x1="0" y1="0" x2="0" y2="-26" stroke="#e8b070" stroke-width="2.5" transform="rotate(60)"/>
   </g>
 </svg>

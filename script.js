@@ -64,7 +64,7 @@ const state = {
   currentRpm: 0,
   paused: false,
   palette: "graphite",
-  directionHints: false,
+  directionHints: true,
   phaseMode: "random",
   studioOpen: false,
   cells: [],
@@ -99,15 +99,19 @@ const dom = {
   alignPhases: document.getElementById("align-phases"),
   modeButtons: document.querySelectorAll(".mode-btn"),
   hourToggle: document.getElementById("hour-toggle"),
-  hintClock: document.querySelector(".hint-chip__clock"),
+  hintClock: document.getElementById("hint-clock"),
 };
 
 const ctx =
   dom.canvas.getContext("2d", { alpha: true, desynchronized: true }) ??
   dom.canvas.getContext("2d");
 
-const HINT_CLOCK_SIZE = 28;
 const hintClockCtx = dom.hintClock?.getContext("2d");
+const HINT_CLOCK = {
+  logicalSize: 28,
+  hourLength: 8,
+  minuteLength: 11,
+};
 
 /* —— Utilities —— */
 
@@ -129,13 +133,78 @@ function expSmooth(current, target, rate, dt) {
   return current + (target - current) * t;
 }
 
-function getLocalTimeParts() {
-  const now = new Date();
+function getLocalTimeParts(now = new Date()) {
   return {
     now,
     h24: String(now.getHours()).padStart(2, "0"),
     m: String(now.getMinutes()).padStart(2, "0"),
+    s: String(now.getSeconds()).padStart(2, "0"),
   };
+}
+
+/** Clock-face degrees clockwise from 12 o'clock (0 = top). */
+function getAnalogHandAngles(now = new Date()) {
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  return {
+    hourAngle: ((hours % 12) + minutes / 60) * 30,
+    minuteAngle: (minutes + seconds / 60) * 6,
+  };
+}
+
+function drawAnalogHand(targetCtx, cx, cy, length, angleDeg, color, lineWidth) {
+  const rad = degreesToRadians(angleDeg);
+  const x = cx + Math.sin(rad) * length;
+  const y = cy - Math.cos(rad) * length;
+
+  targetCtx.strokeStyle = color;
+  targetCtx.lineWidth = lineWidth;
+  targetCtx.lineCap = "round";
+  targetCtx.beginPath();
+  targetCtx.moveTo(cx, cy);
+  targetCtx.lineTo(x, y);
+  targetCtx.stroke();
+}
+
+function configureHintClock() {
+  if (!dom.hintClock || !hintClockCtx) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const px = HINT_CLOCK.logicalSize * dpr;
+
+  dom.hintClock.width = px;
+  dom.hintClock.height = px;
+  hintClockCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  hintClockCtx.imageSmoothingEnabled = true;
+}
+
+function drawHintClock(now = new Date()) {
+  if (!hintClockCtx) return;
+
+  const { logicalSize, hourLength, minuteLength } = HINT_CLOCK;
+  const cx = logicalSize / 2;
+  const cy = logicalSize / 2;
+  const { hourAngle, minuteAngle } = getAnalogHandAngles(now);
+
+  const stroke = readCssVar("--stroke") || "#e8e4dc";
+  const warm = readCssVar("--hint-cw") || "#e8b070";
+  const cool = readCssVar("--hint-ccw") || "#8eb8e8";
+  const hourStroke = state.directionHints ? warm : stroke;
+  const minuteStroke = state.directionHints ? cool : stroke;
+
+  hintClockCtx.clearRect(0, 0, logicalSize, logicalSize);
+  drawAnalogHand(hintClockCtx, cx, cy, hourLength, hourAngle, hourStroke, 1.6);
+  drawAnalogHand(
+    hintClockCtx,
+    cx,
+    cy,
+    minuteLength,
+    minuteAngle,
+    minuteStroke,
+    1.6
+  );
 }
 
 function getDisplayHours() {
@@ -534,63 +603,18 @@ function drawDisplay() {
   drawSegments(state.cwCells, palette.hintCw, useBlend, true);
 }
 
-function configureHintClock() {
-  if (!dom.hintClock || !hintClockCtx) return;
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-  const px = Math.round(HINT_CLOCK_SIZE * dpr);
-
-  dom.hintClock.width = px;
-  dom.hintClock.height = px;
-  hintClockCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  hintClockCtx.lineCap = "round";
-}
-
-function drawHintClockHand(context, cx, cy, halfLen, degrees, color, width) {
-  const rad = degreesToRadians(degrees);
-  const dx = halfLen * Math.cos(rad);
-  const dy = halfLen * Math.sin(rad);
-  context.strokeStyle = color;
-  context.lineWidth = width;
-  context.beginPath();
-  context.moveTo(cx - dx, cy - dy);
-  context.lineTo(cx + dx, cy + dy);
-  context.stroke();
-}
-
-function drawHintClock() {
-  if (!hintClockCtx) return;
-
-  const now = new Date();
-  const h = now.getHours() % 12;
-  const m = now.getMinutes();
-  const s = now.getSeconds();
-  const cx = HINT_CLOCK_SIZE / 2;
-  const cy = HINT_CLOCK_SIZE / 2;
-  const hourAngle = 90 + (h + m / 60 + s / 3600) * 30;
-  const minuteAngle = 90 + (m + s / 60) * 6;
-
-  const stroke = readCssVar("--stroke") || "#e8e4dc";
-  const hourColor = state.directionHints ? readCssVar("--hint-ccw") || "#5bb8ff" : stroke;
-  const minuteColor = state.directionHints ? readCssVar("--hint-cw") || "#ff6b7d" : stroke;
-
-  hintClockCtx.clearRect(0, 0, HINT_CLOCK_SIZE, HINT_CLOCK_SIZE);
-  drawHintClockHand(hintClockCtx, cx, cy, 6, hourAngle, hourColor, 1.5);
-  drawHintClockHand(hintClockCtx, cx, cy, 9, minuteAngle, minuteColor, 1.5);
-}
-
 function syncClock(forceMask = false) {
+  const now = new Date();
   const digits = getTimeDigits();
   updateTimeMask(digits, state.metrics ?? undefined, forceMask);
 
   if (dom.timeReadout) {
-    const { now } = getLocalTimeParts();
     const formatted = getFormattedTime();
     dom.timeReadout.textContent = formatted;
     dom.timeReadout.dateTime = now.toISOString();
   }
 
-  drawHintClock();
+  drawHintClock(now);
 }
 
 function setHourFormat(format) {
@@ -621,7 +645,9 @@ function setDirectionHints(enabled) {
     dom.hintControl.setAttribute("aria-pressed", String(enabled));
     dom.hintControl.setAttribute(
       "aria-label",
-      enabled ? "Color direction hints on" : "Color direction hints off"
+      enabled
+        ? "Color direction hints on. Click for monochrome."
+        : "Monochrome display. Click for color hints."
     );
   }
 
@@ -760,6 +786,9 @@ function bindControls() {
   });
 
   window.addEventListener("resize", () => {
+    configureHintClock();
+    drawHintClock();
+
     if (!state.metrics) return;
     const nextLayout = isStackedLayout() ? "stacked" : "row";
     if (nextLayout !== state.metrics.layout) {
@@ -769,8 +798,6 @@ function bindControls() {
     configureCanvas(state.metrics);
     state.staticLayer = createStaticLayer(state.metrics);
     drawDisplay();
-    configureHintClock();
-    drawHintClock();
   });
 
   mobileLayoutQuery.addEventListener("change", () => {

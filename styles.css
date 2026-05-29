@@ -20,10 +20,10 @@
   --stroke-dim: rgba(232, 228, 220, 0.38);
   --stroke-glow: rgba(232, 228, 220, 0.12);
   --frame: rgba(255, 255, 255, 0.03);
-  --hint-cw: #ff6b7d;
-  --hint-ccw: #5bb8ff;
-  --hint-cw-dim: rgba(255, 107, 125, 0.45);
-  --hint-ccw-dim: rgba(91, 184, 255, 0.4);
+  --hint-cw: #e8b070;
+  --hint-ccw: #8eb8e8;
+  --hint-cw-dim: rgba(232, 176, 112, 0.55);
+  --hint-ccw-dim: rgba(142, 184, 232, 0.5);
 
   --trigger: rgba(255, 255, 255, 0.18);
   --trigger-hover: rgba(255, 255, 255, 0.32);
@@ -38,8 +38,8 @@
   --stroke: rgba(232, 196, 140, 0.9);
   --stroke-dim: rgba(232, 196, 140, 0.35);
   --stroke-glow: rgba(232, 196, 140, 0.14);
-  --hint-cw: rgba(240, 200, 120, 0.6);
-  --hint-ccw: rgba(180, 160, 130, 0.4);
+  --hint-cw: #a87830;
+  --hint-ccw: #4a78a8;
 }
 
 [data-palette="paper"] {
@@ -143,10 +143,8 @@ body {
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 400;
-  letter-spacing: 0.26em;
-  text-indent: 0.26em;
+  letter-spacing: 0.14em;
   text-align: center;
-  text-transform: uppercase;
   white-space: nowrap;
   color: rgba(245, 243, 240, 0.92);
   pointer-events: none;
@@ -193,11 +191,10 @@ body {
     box-shadow var(--duration) var(--ease-out);
 }
 
-.hint-chip__clock {
+.hint-clock {
   display: block;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 }
 
 .hint-chip__frame:hover .hint-chip__box {

@@ -14,7 +14,7 @@
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body data-mode="ambient" data-palette="graphite" data-studio="closed" data-hour-format="12" data-hints="off">
+  <body data-mode="ambient" data-palette="graphite" data-studio="closed" data-hour-format="12" data-hints="on">
     <div class="viewport">
       <header class="hud-bar">
         <div class="hint-control hud--hints" aria-label="Display options">
@@ -22,12 +22,12 @@
           type="button"
           id="hint-control"
           class="hint-chip__frame"
-          aria-pressed="false"
-          aria-label="Color direction hints off"
+          aria-pressed="true"
+          aria-label="Color direction hints on. Click for monochrome."
           title="Direction hints (H)"
         >
           <span class="hint-chip__box" aria-hidden="true">
-            <canvas class="hint-chip__clock" width="28" height="28"></canvas>
+            <canvas id="hint-clock" class="hint-clock" width="56" height="56"></canvas>
           </span>
         </button>
         <time id="time-readout" class="time-readout" datetime=""></time>

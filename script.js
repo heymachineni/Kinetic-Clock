@@ -99,11 +99,15 @@ const dom = {
   alignPhases: document.getElementById("align-phases"),
   modeButtons: document.querySelectorAll(".mode-btn"),
   hourToggle: document.getElementById("hour-toggle"),
+  hintClock: document.querySelector(".hint-chip__clock"),
 };
 
 const ctx =
   dom.canvas.getContext("2d", { alpha: true, desynchronized: true }) ??
   dom.canvas.getContext("2d");
+
+const HINT_CLOCK_SIZE = 28;
+const hintClockCtx = dom.hintClock?.getContext("2d");
 
 /* —— Utilities —— */
 
@@ -530,6 +534,51 @@ function drawDisplay() {
   drawSegments(state.cwCells, palette.hintCw, useBlend, true);
 }
 
+function configureHintClock() {
+  if (!dom.hintClock || !hintClockCtx) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  const px = Math.round(HINT_CLOCK_SIZE * dpr);
+
+  dom.hintClock.width = px;
+  dom.hintClock.height = px;
+  hintClockCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  hintClockCtx.lineCap = "round";
+}
+
+function drawHintClockHand(context, cx, cy, halfLen, degrees, color, width) {
+  const rad = degreesToRadians(degrees);
+  const dx = halfLen * Math.cos(rad);
+  const dy = halfLen * Math.sin(rad);
+  context.strokeStyle = color;
+  context.lineWidth = width;
+  context.beginPath();
+  context.moveTo(cx - dx, cy - dy);
+  context.lineTo(cx + dx, cy + dy);
+  context.stroke();
+}
+
+function drawHintClock() {
+  if (!hintClockCtx) return;
+
+  const now = new Date();
+  const h = now.getHours() % 12;
+  const m = now.getMinutes();
+  const s = now.getSeconds();
+  const cx = HINT_CLOCK_SIZE / 2;
+  const cy = HINT_CLOCK_SIZE / 2;
+  const hourAngle = 90 + (h + m / 60 + s / 3600) * 30;
+  const minuteAngle = 90 + (m + s / 60) * 6;
+
+  const stroke = readCssVar("--stroke") || "#e8e4dc";
+  const hourColor = state.directionHints ? readCssVar("--hint-ccw") || "#5bb8ff" : stroke;
+  const minuteColor = state.directionHints ? readCssVar("--hint-cw") || "#ff6b7d" : stroke;
+
+  hintClockCtx.clearRect(0, 0, HINT_CLOCK_SIZE, HINT_CLOCK_SIZE);
+  drawHintClockHand(hintClockCtx, cx, cy, 6, hourAngle, hourColor, 1.5);
+  drawHintClockHand(hintClockCtx, cx, cy, 9, minuteAngle, minuteColor, 1.5);
+}
+
 function syncClock(forceMask = false) {
   const digits = getTimeDigits();
   updateTimeMask(digits, state.metrics ?? undefined, forceMask);
@@ -540,6 +589,8 @@ function syncClock(forceMask = false) {
     dom.timeReadout.textContent = formatted;
     dom.timeReadout.dateTime = now.toISOString();
   }
+
+  drawHintClock();
 }
 
 function setHourFormat(format) {
@@ -575,6 +626,7 @@ function setDirectionHints(enabled) {
   }
 
   drawDisplay();
+  drawHintClock();
 }
 
 /* —— Motion —— */
@@ -717,6 +769,8 @@ function bindControls() {
     configureCanvas(state.metrics);
     state.staticLayer = createStaticLayer(state.metrics);
     drawDisplay();
+    configureHintClock();
+    drawHintClock();
   });
 
   mobileLayoutQuery.addEventListener("change", () => {
@@ -781,6 +835,7 @@ function init() {
   dom.speedSlider.max = String(CONFIG.maxRpm);
   dom.paletteSelect.value = state.palette;
 
+  configureHintClock();
   setHourFormat(state.hourFormat);
   setDirectionHints(state.directionHints);
   bindControls();
